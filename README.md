@@ -1,1 +1,51 @@
-This file is created by ZHANG, Yitong for tuning the gimbal
+# 构成
+### Matlab上位机部分
+* OpenSerial.m和CloseSerial.m脚本
+ * 用于开启和关闭Matlab虚拟串口
+* STM_serialparam.m设置参数
+ * 用于创建串口所需的变量
+ * 用于更改串口的设置，主要需要设置的参数如下 
+ * 串口名，波特率 
+ * 接收一组数据的个数 
+ * 图像设置，图像数据数量及Y轴范围等 
+ * 数据设置，数据类型以及例如把弧度制转为角度制等
+* 主脚本STM_serialread.m
+ * 开启串口后运行该脚本读取数据
+* 若干个STM_serialplot.m及STM_serialsave.m
+ * 将这些脚本放置于主脚本后方以进行画图，保存txt文件等操作
+ * 包含2个示例脚本用于画图以及1个脚本用于保存txt文件，有需要时可以更改
+ * 示例脚本STM_serialplot可以实时滚动地绘制图像，但不能保存之前的数据
+### 嵌入式系统部分
+* 函数void transmit_matlab(...)
+ * 位于shellcfg.c
+ * 这个函数将32位的数据转换成串口支持的8位数据依次发送
+ * 支持发送整数int和unsigned int以及单精度float数据
+* 线程函数Host_thread
+ * 指定要发送的数据并设置发送频率
+# 使用方法
+### 基本步骤
+#### 嵌入式系统部分
+1. 在shellcfg.c中Host_thread指定要发送的整数和float数据
+ * 若要发送int数据，请用指针将其强制转换为uint32_t然后并入txbuf_d发送
+2. 在Host_thread下方transmit_matlab函数中注明发送的各类型数据数量然后编译，下载代码
+#### 上位机部分
+1. 在STM_serialparam.m中设置相应的参数
+2. 在STM_serialread.m中指定要进行哪种plot操作或者是否保存参数
+3. 运行OpenSerial开启串口
+4. 运行STM_serialread开始接收数据以及生成实时图像
+5. 想结束读取串口，按ctrl+c终止STM_serialread脚本的运行
+6. 运行CloseSerial关闭串口
+### 注意事项
+* 运行OpenSerial之前必须先关闭串口
+* STM_serialplot中num_data设置须等于串口发送32位数据数量，否则会收到无效数据
+* 注意使用的串口名，以及下面参数数组长度不得小于num_of_data
+* 要在开启串口后改变STM_serialparam中的参数，修改会在串口重新开启后生效。
+* OpenSerial会清除工作区其他所有变量，防止产生干扰，如觉得不妥可将首行clear删除
+* 在STM_serialread刚开始运行时由于会有断点，开始时会出现无效数据，如串口连接良好，过一阵即会消失
+### 故障排除
+* 连续2次运行Openserial导致串口无法开启
+排除：重新启动matlab后运行相关脚本
+* 开启STM_serialread后没有显示图像
+排除： 串口没有接收到数据，检查使用的串口是否正确，板子是否上电，接线是否正确，程序运行是否正常
+* 收到非常大的没有意义的数据
+排除： 原因一般是串口没有连接好，重新连接串口即可

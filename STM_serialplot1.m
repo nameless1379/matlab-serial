@@ -1,7 +1,7 @@
 figure(1)
 for i = 1:num_data
 if data_plot(i)
-    subplot(6,1,i)
+    subplot(3,1,i)
     if count <= data_len(i)
         data_y = double(data(i,1:data_len(i)))*data_moduler(i);
         plot(1:data_len(i),data_y)

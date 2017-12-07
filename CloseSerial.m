@@ -1,3 +1,6 @@
+fwrite(s,'data')
+fwrite(s,13)
+
 try  
 fclose(s);  
 catch err  

@@ -2,6 +2,10 @@ len = num_data;
 
 total_bytes = (len + 1)*4;
 
+fwrite(s,'data 1')
+fwrite(s,13)
+pause(1)
+
 while(s.BytesAvailable > 0)
     fread(s,s.BytesAvailable,'uint8');
 end
